@@ -16,4 +16,4 @@ Property records; registration applications; ownership interests and transfers; 
 - Use HTTPS, least-privilege database credentials, validation, audit retention and secret storage before deployment.
 
 ## Current implementation
-The initial API exposes health and property CRUD routes. Authentication, document storage, formal workflow state machine, OCR/ML, ledger anchoring, notification delivery and government integrations remain future milestones.
+The API currently exposes a health response, property list/search and single-record lookup, property creation, application listing/submission, application status updates, and persisted audit-event listing. SQL Server is the intended persistent store; schema and fictional seed scripts are provided. Authentication, protected document storage, formal workflow state-machine enforcement, OCR/ML, ledger anchoring, notification delivery and government integrations remain future milestones. CI validates frontend and backend compilation; this does not establish database runtime or production readiness.
