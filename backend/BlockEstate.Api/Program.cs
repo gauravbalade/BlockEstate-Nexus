@@ -15,6 +15,26 @@ builder.Services.AddCors(o => o.AddPolicy("Frontend", p =>
 var app = builder.Build();
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
+
+// This scaffold has no authentication/authorisation yet. Fail closed for writes
+// outside Development so an accidentally exposed deployment cannot mutate records.
+app.Use(async (context, next) =>
+{
+    var isWrite = HttpMethods.IsPost(context.Request.Method)
+        || HttpMethods.IsPut(context.Request.Method)
+        || HttpMethods.IsPatch(context.Request.Method)
+        || HttpMethods.IsDelete(context.Request.Method);
+    if (!app.Environment.IsDevelopment() && isWrite)
+    {
+        context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+        await context.Response.WriteAsJsonAsync(new
+        {
+            message = "Write operations are disabled outside Development until authentication and authorisation are implemented."
+        });
+        return;
+    }
+    await next();
+});
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
 app.MapGet("/api/health", () => Results.Ok(new { status = "ok", service = "BlockEstate Nexus API", note = "Liveness only; this response does not confirm database readiness." }));
