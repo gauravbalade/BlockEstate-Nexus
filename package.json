@@ -8,6 +8,7 @@
     "build": "npm --prefix frontend run build",
     "typecheck": "npm --prefix frontend run build",
     "preview": "npm --prefix frontend run preview -- --host 0.0.0.0",
-    "api:run": "dotnet run --project backend/BlockEstate.Api"
+    "api:run": "dotnet run --project backend/BlockEstate.Api",
+    "postinstall": "npm --prefix frontend install"
   }
 }
