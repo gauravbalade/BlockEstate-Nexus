@@ -15,6 +15,10 @@ BlockEstate Nexus is a final-year engineering project concept for clearer, trace
 React + TypeScript + Vite; ASP.NET Core Web API; Entity Framework Core; SQL Server.
 The API targets **.NET 10 LTS**. The submitted proposal mentioned .NET 8; Microsoft lists .NET 8 end of support as **10 November 2026**, so confirm this framework change with the project guide before formal submission. See [Microsoft's support policy](https://dotnet.microsoft.com/en-us/platform/support/policy).
 
+## Windows setup and smoke testing
+
+For the full Windows/PowerShell setup, SQL Server schema preparation, API origin configuration, smoke-test endpoints and presentation safety checklist, see [`docs/WINDOWS_SETUP_AND_SMOKE_TEST.md`](docs/WINDOWS_SETUP_AND_SMOKE_TEST.md). Follow it before claiming that the UI is connected to the database.
+
 ## Run the frontend
 Requires Node.js 20.19+ or 22.12+.
 ```bash
