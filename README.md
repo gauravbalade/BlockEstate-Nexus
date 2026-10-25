@@ -3,7 +3,7 @@
 
 BlockEstate Nexus is a final-year engineering project concept for clearer, traceable property-registration workflows. It brings property records, application review, document checklists, ownership history, risk indicators and audit events into one interface.
 
-> **Honest status:** this repository is an engineering foundation and interactive prototype. The UI uses fictional demo data unless configured to call the API. The API now has SQL-backed property, registration-application and audit-event endpoints, but it is still a development scaffold without authentication. OCR, trained fraud models, blockchain anchoring, production QR verification, payment settlement and government integrations are not live until implemented and tested.
+> **Honest status:** this repository is an engineering foundation and interactive prototype. The UI uses fictional demo data unless configured to call the API. The API has SQL-backed property, registration-application and audit-event endpoints, but it is still a development scaffold without authentication. Unauthenticated write requests are blocked outside the Development environment; this is a safety guard, not a substitute for authentication or authorisation. OCR, trained fraud models, blockchain anchoring, production QR verification, payment settlement and government integrations are not live until implemented and tested.
 
 ## Structure
 - `frontend/` — React, TypeScript and Vite UI.
