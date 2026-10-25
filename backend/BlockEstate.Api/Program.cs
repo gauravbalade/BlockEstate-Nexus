@@ -72,6 +72,16 @@ app.MapGet("/api/applications", async (RegistryDbContext db, string? status, Can
     var rows = await query.OrderByDescending(x => x.a.UpdatedAt).Take(250).ToListAsync(ct);
     return Results.Ok(rows.Select(x => ToApplication(x.a, x.Title)));
 });
+app.MapGet("/api/applications/{code}", async Task<IResult> (string code, RegistryDbContext db, CancellationToken ct) =>
+{
+    var row = await (from a in db.Applications.AsNoTracking()
+                     join p in db.Properties.AsNoTracking() on a.PropertyCode equals p.PropertyCode
+                     where a.ApplicationCode == code
+                     select new { Application = a, p.Title }).SingleOrDefaultAsync(ct);
+    return row is null
+        ? Results.NotFound(new { message = "Application was not found." })
+        : Results.Ok(ToApplication(row.Application, row.Title));
+});
 app.MapPost("/api/applications", async Task<IResult> (CreateApplicationRequest r, RegistryDbContext db, CancellationToken ct) =>
 {
     var errors = Validate(r.Title,r.PropertyType,r.Location,r.RecordedOwner,r.Area,null);

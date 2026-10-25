@@ -7,6 +7,7 @@ ASP.NET Core Web API using EF Core and SQL Server. Apply `database/schema.sql` t
 - `GET /api/properties?search=&status=` and `GET /api/properties/{code}` — property lookup/search.
 - `POST /api/properties` — create a property record.
 - `GET /api/applications` — list registration applications with property names.
+- `GET /api/applications/{code}` — fetch one application by its reference (the resource returned by the create endpoint).
 - `POST /api/applications` — create a property plus registration application in one database transaction.
 - `PUT /api/applications/{code}/status` — validate a workflow transition, update the application and linked property, and write an audit event in one transaction. Same-status updates are idempotent; invalid transitions return 409.
 - `GET /api/audit-events` — recent persisted audit events.
