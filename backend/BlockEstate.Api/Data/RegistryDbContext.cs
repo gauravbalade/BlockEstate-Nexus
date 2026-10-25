@@ -10,6 +10,7 @@ public sealed class RegistryDbContext(DbContextOptions<RegistryDbContext> option
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         var property = modelBuilder.Entity<PropertyRecord>();
+        property.ToTable("PropertyRecords");
         property.HasKey(x => x.Id);
         property.HasIndex(x => x.PropertyCode).IsUnique();
         property.HasIndex(x => x.ApplicationCode);
