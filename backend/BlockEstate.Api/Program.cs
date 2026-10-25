@@ -17,7 +17,22 @@ app.UseHttpsRedirection();
 app.UseCors("Frontend");
 if (app.Environment.IsDevelopment()) app.MapOpenApi();
 
-app.MapGet("/api/health", () => Results.Ok(new { status = "ok", service = "BlockEstate Nexus API", note = "Service response only; check database readiness separately." }));
+app.MapGet("/api/health", () => Results.Ok(new { status = "ok", service = "BlockEstate Nexus API", note = "Liveness only; this response does not confirm database readiness." }));
+app.MapGet("/api/health/ready", async (RegistryDbContext db, CancellationToken ct) =>
+{
+    try
+    {
+        var connected = await db.Database.CanConnectAsync(ct);
+        return connected
+            ? Results.Ok(new { status = "ready", database = "reachable" })
+            : Results.Json(new { status = "not_ready", database = "unreachable" }, statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+    catch (Exception)
+    {
+        // Keep connection details and infrastructure secrets out of the health response.
+        return Results.Json(new { status = "not_ready", database = "unreachable" }, statusCode: StatusCodes.Status503ServiceUnavailable);
+    }
+});
 
 app.MapGet("/api/properties", async (RegistryDbContext db, string? search, string? status, CancellationToken ct) =>
 {
@@ -79,11 +94,17 @@ app.MapPut("/api/applications/{code}/status", async Task<IResult> (string code, 
         return Results.ValidationProblem(new Dictionary<string,string[]>{{"status",["Status is not supported."]}});
     var a=await db.Applications.SingleOrDefaultAsync(x=>x.ApplicationCode==code,ct);
     if(a is null) return Results.NotFound(new {message="Application was not found."});
-    var old=a.Status; a.Status=r.Status; a.UpdatedAt=DateTimeOffset.UtcNow;
+    var old=a.Status;
+    if (old != r.Status && !CanTransition(old, r.Status))
+        return Results.Conflict(new { message = "Status transition from '" + old + "' to '" + r.Status + "' is not allowed.", currentStatus = old });
+    if (old == r.Status) return Results.Ok(ToApplication(a, await db.Properties.AsNoTracking().Where(x => x.PropertyCode == a.PropertyCode).Select(x => x.Title).SingleOrDefaultAsync(ct) ?? a.PropertyCode));
+    await using var tx = await db.Database.BeginTransactionAsync(ct);
+    a.Status=r.Status; a.UpdatedAt=DateTimeOffset.UtcNow;
     var p=await db.Properties.SingleOrDefaultAsync(x=>x.PropertyCode==a.PropertyCode,ct);
-    if(p is not null){p.Status=r.Status=="Approved"?"Verified":r.Status is "Action required" or "Rejected"?"Action required":"Under review";p.UpdatedAt=DateTimeOffset.UtcNow;}
-    db.AuditEvents.Add(Audit($"Application status changed: {old} → {r.Status}",code,"Review","API workflow event. Authentication is not implemented in this scaffold."));
+    if(p is not null){p.Status=r.Status=="Approved"?"Verified":r.Status=="Rejected"?"Action required":r.Status=="Action required"?"Action required":"Under review";p.UpdatedAt=DateTimeOffset.UtcNow;}
+    db.AuditEvents.Add(Audit("Application status changed: " + old + " → " + r.Status,code,"Review","API workflow event. Authentication is not implemented in this scaffold."));
     await db.SaveChangesAsync(ct);
+    await tx.CommitAsync(ct);
     return Results.Ok(ToApplication(a,p?.Title ?? a.PropertyCode));
 });
 app.MapGet("/api/audit-events", async (RegistryDbContext db,CancellationToken ct) =>
@@ -98,6 +119,14 @@ static object ToApplication(RegistrationApplication a,string title)=>new{id=a.Ap
 static AuditEvent Audit(string action,string target,string kind,string details)=>new(){ActorLabel="API workflow (unauthenticated scaffold)",Action=action,Target=target,Kind=kind,Details=details,CreatedAt=DateTimeOffset.UtcNow};
 static string NewAppCode()=>$"APP-{DateTime.UtcNow:yyyy}-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}";
 static string NewPropertyCode()=>$"BEN-MH-{Random.Shared.Next(10000,99999)}";
+static bool CanTransition(string current, string next) => current switch
+{
+    "Submitted" => next is "Under review" or "Action required" or "Rejected",
+    "Under review" => next is "Action required" or "Approved" or "Rejected",
+    "Action required" => next is "Under review" or "Rejected",
+    "Approved" or "Rejected" => false,
+    _ => false
+};
 static Dictionary<string,string[]> Validate(string? title,string? type,string? location,string? owner,string? area,string? code)
 {
  var errors=new Dictionary<string,string[]>();
