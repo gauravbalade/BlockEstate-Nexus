@@ -9,9 +9,11 @@
 
 ## Persistence and workflow
 - [ ] Add EF migrations and fictional development seed data.
-- [x] Add registration application and audit-event entities to the API scaffold.\n- [ ] Add document metadata, ownership history and review-finding entities.
+- [x] Add registration application and audit-event entities to the API scaffold. 
+- [ ] Add document metadata, ownership history and review-finding entities.
 - [ ] Enforce valid status transitions and server-side validation.
-- [x] Connect property list, registration submission, review status and audit display to API client methods.\n- [ ] Add integration tests and verify against a configured SQL Server instance.
+- [x] Connect property list, registration submission, review status and audit display to API client methods. 
+- [ ] Add integration tests and verify against a configured SQL Server instance.
 
 ## Identity and documents
 - [ ] Secure authentication and server-side role policies.
