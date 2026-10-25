@@ -40,3 +40,13 @@ npm-debug.log*
 coverage/
 **/coverage/
 *.tsbuildinfo
+
+# ProductOS preview harness files are not application source
+/app/
+/public/productos-*.js
+/.next/
+/.productos/
+/.productos-agent-busy
+/.productos-pull-complete
+/.productos-stack
+/package-lock.json
