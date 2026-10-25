@@ -44,6 +44,15 @@ app.MapGet("/api/properties", async (RegistryDbContext db, string? search, strin
     if (!string.IsNullOrWhiteSpace(status)) q = q.Where(p => p.Status == status);
     return Results.Ok((await q.OrderByDescending(p => p.UpdatedAt).Take(250).ToListAsync(ct)).Select(ToProperty));
 });
+app.MapGet("/api/properties/{code}/risk-assessment", async Task<IResult> (string code, RegistryDbContext db, CancellationToken ct) =>
+{
+    var subject = await db.Properties.AsNoTracking().SingleOrDefaultAsync(p => p.PropertyCode == code, ct);
+    if (subject is null) return Results.NotFound(new { message = "Property record was not found." });
+    var properties = await db.Properties.AsNoTracking().OrderBy(p => p.PropertyCode).Take(5000).ToListAsync(ct);
+    var applications = await db.Applications.AsNoTracking().OrderBy(a => a.ApplicationCode).Take(5000).ToListAsync(ct);
+    return Results.Ok(PropertyRiskRules.Assess(subject, properties, applications));
+});
+
 app.MapGet("/api/properties/{code}", async Task<IResult> (string code, RegistryDbContext db, CancellationToken ct) =>
 {
     var p = await db.Properties.AsNoTracking().SingleOrDefaultAsync(x => x.PropertyCode == code, ct);
@@ -105,7 +114,7 @@ app.MapPut("/api/applications/{code}/status", async Task<IResult> (string code, 
     var a=await db.Applications.SingleOrDefaultAsync(x=>x.ApplicationCode==code,ct);
     if(a is null) return Results.NotFound(new {message="Application was not found."});
     var old=a.Status;
-    if (old != r.Status && !CanTransition(old, r.Status))
+    if (old != r.Status && !ApplicationWorkflow.CanTransition(old, r.Status))
         return Results.Conflict(new { message = "Status transition from '" + old + "' to '" + r.Status + "' is not allowed.", currentStatus = old });
     if (old == r.Status) return Results.Ok(ToApplication(a, await db.Properties.AsNoTracking().Where(x => x.PropertyCode == a.PropertyCode).Select(x => x.Title).SingleOrDefaultAsync(ct) ?? a.PropertyCode));
     await using var tx = await db.Database.BeginTransactionAsync(ct);
@@ -129,14 +138,6 @@ static object ToApplication(RegistrationApplication a,string title)=>new{id=a.Ap
 static AuditEvent Audit(string action,string target,string kind,string details)=>new(){ActorLabel="API workflow (unauthenticated scaffold)",Action=action,Target=target,Kind=kind,Details=details,CreatedAt=DateTimeOffset.UtcNow};
 static string NewAppCode()=>$"APP-{DateTime.UtcNow:yyyy}-{Guid.NewGuid().ToString("N")[..8].ToUpperInvariant()}";
 static string NewPropertyCode()=>$"BEN-MH-{Random.Shared.Next(10000,99999)}";
-static bool CanTransition(string current, string next) => current switch
-{
-    "Submitted" => next is "Under review" or "Action required" or "Rejected",
-    "Under review" => next is "Action required" or "Approved" or "Rejected",
-    "Action required" => next is "Under review" or "Rejected",
-    "Approved" or "Rejected" => false,
-    _ => false
-};
 static Dictionary<string,string[]> Validate(string? title,string? type,string? location,string? owner,string? area,string? code)
 {
  var errors=new Dictionary<string,string[]>();
