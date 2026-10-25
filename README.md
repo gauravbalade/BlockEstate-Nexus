@@ -3,7 +3,7 @@
 
 BlockEstate Nexus is a final-year engineering project concept for clearer, traceable property-registration workflows. It brings property records, application review, document checklists, ownership history, risk indicators and audit events into one interface.
 
-> **Honest status:** this repository is an engineering foundation and interactive prototype. The UI uses fictional demo data unless configured to call the API. The API now has SQL-backed property, registration-application and audit-event endpoints, but it is still a development scaffold without authentication. OCR, trained fraud models, blockchain anchoring, production QR verification, payment settlement and government integrations are not live until implemented and tested.
+> **Honest status:** this repository is an engineering foundation and interactive prototype. The UI uses fictional demo data unless configured to call the API. The API has SQL-backed property, registration-application and audit-event endpoints, but it is still a development scaffold without authentication. Unauthenticated write requests are blocked outside the Development environment; this is a safety guard, not a substitute for authentication or authorisation. OCR, trained fraud models, blockchain anchoring, production QR verification, payment settlement and government integrations are not live until implemented and tested.
 
 ## Structure
 - `frontend/` — React, TypeScript and Vite UI.
@@ -14,6 +14,10 @@ BlockEstate Nexus is a final-year engineering project concept for clearer, trace
 ## Technology
 React + TypeScript + Vite; ASP.NET Core Web API; Entity Framework Core; SQL Server.
 The API targets **.NET 10 LTS**. The submitted proposal mentioned .NET 8; Microsoft lists .NET 8 end of support as **10 November 2026**, so confirm this framework change with the project guide before formal submission. See [Microsoft's support policy](https://dotnet.microsoft.com/en-us/platform/support/policy).
+
+## Windows setup and smoke testing
+
+For the full Windows/PowerShell setup, SQL Server schema preparation, API origin configuration, smoke-test endpoints and presentation safety checklist, see [`docs/WINDOWS_SETUP_AND_SMOKE_TEST.md`](docs/WINDOWS_SETUP_AND_SMOKE_TEST.md). Follow it before claiming that the UI is connected to the database.
 
 ## Run the frontend
 Requires Node.js 20.19+ or 22.12+.
