@@ -1,7 +1,7 @@
 # BlockEstate Nexus — Windows Setup and Demo Readiness
 
 ## Important boundary
-This repository is an interactive academic prototype. The API currently has **no authentication or authorisation**. Do not expose it publicly with real or sensitive data. Status transitions and risk indicators are workflow aids, not legal decisions or proof of title. Use fictional records only.
+This repository is an interactive academic prototype. The API currently has **no authentication or authorisation**. The current branch disables POST/PUT/PATCH/DELETE requests outside the Development environment as a fail-closed safeguard; this is not a substitute for proper identity policies, and read endpoints still must not expose real/sensitive data. Do not expose it publicly with real or sensitive data. Status transitions and risk indicators are workflow aids, not legal decisions or proof of title. Use fictional records only.
 
 ## Prerequisites
 - Node.js 22 LTS (or a supported version listed in the README).
