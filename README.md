@@ -3,7 +3,7 @@
 
 BlockEstate Nexus is a final-year engineering project concept for clearer, traceable property-registration workflows. It brings property records, application review, document checklists, ownership history, risk indicators and audit events into one interface.
 
-> **Honest status:** this repository is an engineering foundation and interactive prototype. The UI uses fictional demo data unless configured to call the API. Database persistence, real authentication, OCR, trained fraud models, blockchain anchoring, production QR verification, payment settlement and government integrations are not live until implemented and tested.
+> **Honest status:** this repository is an engineering foundation and interactive prototype. The UI uses fictional demo data unless configured to call the API. The API now has SQL-backed property, registration-application and audit-event endpoints, but it is still a development scaffold without authentication. OCR, trained fraud models, blockchain anchoring, production QR verification, payment settlement and government integrations are not live until implemented and tested.
 
 ## Structure
 - `frontend/` — React, TypeScript and Vite UI.
@@ -32,7 +32,9 @@ dotnet user-secrets init
 dotnet user-secrets set "ConnectionStrings:Registry" "Server=(localdb)\\MSSQLLocalDB;Database=BlockEstateNexus;Trusted_Connection=True;TrustServerCertificate=True"
 dotnet run
 ```
-Set `VITE_API_BASE_URL` in the frontend environment to the API base URL to enable API fetching. Without it, the UI uses clearly labelled local demo data.
+Before first API use, run `database/schema.sql` against your development SQL Server database, then set the `Registry` connection string. The API does not auto-create tables.
+
+Set `VITE_API_BASE_URL` in `frontend/.env` to the API base URL to enable API fetching. Without it, the UI uses clearly labelled local demo data.
 
 ## Trust and security boundaries
 - Sample records are fictional.
