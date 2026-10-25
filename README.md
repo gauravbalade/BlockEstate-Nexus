@@ -32,7 +32,7 @@ dotnet user-secrets init
 dotnet user-secrets set "ConnectionStrings:Registry" "Server=(localdb)\\MSSQLLocalDB;Database=BlockEstateNexus;Trusted_Connection=True;TrustServerCertificate=True"
 dotnet run
 ```
-Before first API use, run `database/schema.sql` against your development SQL Server database, then set the `Registry` connection string. The API does not auto-create tables.
+Before first API use, run `database/schema.sql` against your development SQL Server database. Optionally run `database/seed-demo.sql` to insert clearly fictional demonstration records. Then set the `Registry` connection string. The API does not auto-create tables.
 
 Set `VITE_API_BASE_URL` in `frontend/.env` to the API base URL to enable API fetching. Without it, the UI uses clearly labelled local demo data.
 
